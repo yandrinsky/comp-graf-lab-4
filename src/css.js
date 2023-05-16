@@ -1,6 +1,7 @@
 export const CSS = {
     frameLine: {
-        width: 5
+        width: 5,
+        zIndex: 2
     },
 
     frameCircle: {

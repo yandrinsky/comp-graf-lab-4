@@ -2,8 +2,8 @@ export function clippingSegments(windowLines, lines) {
     // координаты окна
     const xLeft = windowLines[0].coordinates.start.x;
     const xRight = windowLines[0].coordinates.end.x;
-    const yBottom = windowLines[1].coordinates.end.y;
-    const yTop = windowLines[1].coordinates.start.y;
+    const yBottom = windowLines[1].coordinates.start.y;
+    const yTop = windowLines[1].coordinates.end.y;
 
     let outsideLines = [];
     let insideLines = [];
@@ -17,19 +17,19 @@ export function clippingSegments(windowLines, lines) {
 
         // тривиально невидимые отрезки
         if (
-            !(xStart < xLeft && xEnd < xLeft) ||
-            !(xStart > xRight && xEnd > xRight) ||
-            !(yStart < yBottom && yEnd < yBottom) ||
-            !(yStart > yTop && yEnd > yTop)
+            (xStart < xLeft && xEnd < xLeft) ||
+            (xStart > xRight && xEnd > xRight) ||
+            (yStart < yBottom && yEnd < yBottom) ||
+            (yStart > yTop && yEnd > yTop)
         ) {
             outsideLines.push(lines[i]);
         } else {
             // отрезки полностью попадающие в окно
             if (
-                !(xStart <= xLeft || xStart >= xRight) &&
-                !(xEnd <= xLeft || xEnd >= xRight) &&
-                !(yStart <= yBottom || yStart >= yTop) &&
-                !(yEnd <= yBottom || yEnd >= yTop)
+                (xStart >= xLeft && xStart <= xRight) &&
+                (yStart >= yBottom && yStart <= yTop) &&
+                (xEnd >= xLeft && xEnd <= xRight) &&
+                (yEnd >= yBottom && yEnd <= yTop)
             ) {
                 insideLines.push(lines[i]);
             } else {
@@ -49,12 +49,14 @@ export function clippingSegments(windowLines, lines) {
                     y2 = null;
 
                 for (let j = 0; j < 4; j++) {
-                    if (0 <= t[j] <= 1) {
+                    if (0 <= t[j] && t[j] <= 1) {
                         // точка пересечения с прямой границы окна
                         x = xStart + (xEnd - xStart) * t[j];
                         y = yStart + (yEnd - yStart) * t[j];
                         // проверка на попадание в границы окна
-                        if (x >= xLeft && x <= xRight && y >= yBottom && y <= yTop) {
+                        if ((x >= xLeft && x <= xRight && j >=2) ||
+                            (y >= yBottom && y <= yTop && j <= 1))
+                        {
                             count++;
                             if (x1 === null && y1 === null) {
                                 x1 = x;
@@ -68,18 +70,26 @@ export function clippingSegments(windowLines, lines) {
                 }
                 // Определение видимой части
                 if (count === 1) {
-                    if (xStart >= xLeft && xStart <= xRight && yStart >= yBottom && yStart <= yTop)
+                    if (xStart >= xLeft && xStart <= xRight &&
+                        yStart >= yBottom && yStart <= yTop)
+                    {
                         collisionLines.push({
                             start: { x: xStart, y: yStart },
                             end: { x: x1, y: y1 }
                         });
+                    }
                     else {
-                        collisionLines.push({ start: { x: x1, y: y1 }, end: { x: xEnd, y: yEnd } });
+                        collisionLines.push({
+                            start: { x: x1, y: y1 },
+                            end: { x: xEnd, y: yEnd }
+                        });
                     }
                 } else if (count === 2) {
-                    collisionLines.push({ start: { x: x1, y: y1 }, end: { x: x2, y: y2 } });
+                    collisionLines.push({
+                        start: { x: x1, y: y1 },
+                        end: { x: x2, y: y2 }
+                    });
                 }
-
                 outsideLines.push(lines[i]);
             }
         }

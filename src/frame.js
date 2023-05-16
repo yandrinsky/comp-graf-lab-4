@@ -1,4 +1,4 @@
-export const createFrame = ({ CNV }) => {
+export const createFrame = ({ CNV, onFrameMove }) => {
     CNV.createLine({
         x0: window.innerWidth / 2 - 200,
         y0: window.innerHeight / 2 - 200,
@@ -101,6 +101,8 @@ export const createFrame = ({ CNV }) => {
                     circle.update.start.x = circle.update.start.x + e.movementX;
                     circle.update.start.y = circle.update.start.y + e.movementY;
                 });
+
+                onFrameMove();
             });
         };
     });
@@ -239,6 +241,8 @@ export const createFrame = ({ CNV }) => {
                     dotResize({ index: i, movement: realMovement.movement, resizeTo });
                 }
             });
+
+            onFrameMove();
         };
     });
 };
