@@ -24,26 +24,35 @@ export const App = () => {
             });
         }
 
-        createFrame({ CNV });
-
+А
         randomLinesGenerate(20);
 
-        // CNV.createLine({ x0: 350, y0: 300, x1: 500, y1: 500, className: 'testedLines' });
-
-        const res = clippingSegments(
-            CNV.querySelectorAll('.frameLine'),
-            CNV.querySelectorAll('.testedLines')
-        );
-
-        console.log('res', res);
-
-        CNV.combineRender(() => {
-            res.outsideLines.forEach(line => line.classList.add('gray'));
-            res.insideLines.forEach(line => line.classList.add('red'));
-            res.collisionLines.forEach(({ start, end }) =>
-                CNV.createLine({ x0: start.x, y0: start.y, x1: end.x, y1: end.y, className: 'gray' })
+        const paintLines = () => {
+            const res = clippingSegments(
+                CNV.querySelectorAll('.frameLine'),
+                CNV.querySelectorAll('.testedLines')
             );
-        });
+
+            CNV.combineRender(() => {
+                CNV.querySelectorAll('.green').forEach(line => line.remove())
+                CNV.querySelectorAll('.testedLines').forEach(line => {
+                    line.classList.remove('gray')
+                    line.classList.remove('red')
+                })
+
+                res.outsideLines.forEach(line => line.classList.add('gray'));
+                res.insideLines.forEach(line => line.classList.add('red'));
+
+                res.collisionLines.forEach(({ start, end }) =>
+                    CNV.createLine({ x0: start.x, y0: start.y, x1: end.x, y1: end.y, className: 'green' })
+                );
+            });
+        }
+
+        createFrame({ CNV, onFrameMove:  paintLines });
+
+        paintLines();
+
     }, []);
 
     return (
